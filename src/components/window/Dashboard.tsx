@@ -235,7 +235,7 @@ const Dashboard = () => {
             </div>
 
             <a
-              href="http://github.com/nomandhoni-cs/blink-eye"
+              href="https://github.com/sirajju/blink-eye-crack"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center ml-auto"

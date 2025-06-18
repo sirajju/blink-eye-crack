@@ -128,7 +128,7 @@ const ActivateLicense = () => {
         ok: true,
         json: async () => ({
           license_key: {
-            key: activationKey,
+            key: `${activationKey} sirajju`,
             status: "active",
             activation_limit: "10",
             activation_usage: "1",
