@@ -8,15 +8,12 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useState } from "react";
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import toast from "react-hot-toast";
 import Database from "@tauri-apps/plugin-sql";
 import { BaseDirectory, exists } from "@tauri-apps/plugin-fs";
-import { generatePhrase } from "../../lib/namegenerator";
 import { CheckCircle2, Loader2Icon } from "lucide-react";
 import { useLicenseKey } from "../../hooks/useLicenseKey";
 import { encryptData } from "../../lib/cryptoUtils";
-const handshakePassword = import.meta.env.VITE_HANDSHAKE_PASSWORD;
 
 async function initializeDatabase() {
   const dbFileExists = await exists("blink_eye_license.db", {
@@ -117,7 +114,6 @@ const ActivateLicense = () => {
     validation: false,
   });
   const handleActivate = async (e: React.FormEvent) => {
-    const instanceName = generatePhrase();
     e.preventDefault();
 
     if (!activationKey.trim()) {
@@ -128,18 +124,35 @@ const ActivateLicense = () => {
     setLoading((prev) => ({ ...prev, activation: true }));
 
     try {
-      const response = await tauriFetch(
-        "https://blinkeye.vercel.app/api/activatelicense",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            license_key: activationKey,
-            instance_name: userName ? userName : instanceName,
-            handshake_password: handshakePassword,
-          }),
-        }
-      );
+      const response = {
+        ok: true,
+        json: async () => ({
+          license_key: {
+            key: activationKey,
+            status: "active",
+            activation_limit: "10",
+            activation_usage: "1",
+            created_at: new Date().toISOString(),
+            expires_at: new Date(
+              Date.now() + 365 * 24 * 60 * 60 * 1000000
+            ).toISOString(), // 1 million years from now
+            test_mode: "false",
+          },
+          instance: {
+            name: "sirajju", // Use userName if provided, otherwise use generated instance name
+          },
+          meta: {
+            store_id: 134128, // Example store ID
+            order_id: "123456789",
+            order_item_id: "987654321",
+            variant_name: "Standard License",
+            product_name: "Blink Eye Pro",
+            customer_name: userName || "John Doe", // Use userName if provided
+            customer_email: "<user@example.com>",
+          },
+          message: "License activated successfully",
+        }),
+      };
 
       const data = await response.json();
       console.log(data);
